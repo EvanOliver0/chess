@@ -17,6 +17,47 @@ class Board
     return @players[0]
   end
 
+  def make_move(move)
+    move_info = decode_move(move)
+    type = move_info[0]
+    start_coords = move_info[1..2]
+    end_coords = move_info[3..4]
+
+    piece = @spaces[start_coords[0]][start_coords[1]]
+    return [false, "There is no piece there to move!"] if piece.nil?
+
+    if piece.name != type
+      return [false, "There's no #{type} at that space. Did you mean to move the #{piece.name}?"]
+    end
+
+    valid_moves = find_moves(piece, start_coords)
+    return [false, "That piece can't move like that."] unless valid_moves.include? end_coords
+
+    target = @spaces[end_coords[0]][end_coords[1]]
+    @spaces[end_coords[0]][end_coords[1]] = piece
+    @spaces[start_coords[0]][start_coords[1]] = nil
+    message = target.nil? ? move : move.sub("-", "x")
+
+    if check?(current_player)
+      @spaces[end_coords[0]][end_coords[1]] = target
+      @spaces[start_coords[0]][start_coords[1]] = piece
+      return [false, "You can't allow your own king to be in check!"]
+    end
+    
+    if check?(@players[1])
+      if mate?(@players[1])
+        message += "#\n"
+        message += current_player.color == "white" ? "1-0" : "0-1"
+        victor = current_player
+        return [true, message]
+      else
+        message += "+"
+      end
+    end
+
+    return [true, message]
+  end
+
   private
   def set_up_pieces
     @spaces[0][0] = Piece.rook("white")
