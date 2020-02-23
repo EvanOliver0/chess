@@ -64,7 +64,20 @@ class Board
   end
 
   def decode_move(move)
-    return ["knight", 0, 0, 1, 2]
+    pieces = {"P": "pawn", "N": "knight", "B": "bishop", "R": "rook", "Q": "queen", "K": "king"}
+    files = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
+
+    if move[0] == move[0].upcase
+      piece_code = move[0]
+      move = move[1..-1]
+    else
+      piece_code = "P"
+    end
+
+    start, end = move.split("-") if move.include?("-")
+    start, end = move.split("x")
+
+    return [pieces[piece_code], files[start[0]], start[1].to_i, files[end[0]], end[1].to_i]
   end
 
   def find_moves(piece, start)
