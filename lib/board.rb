@@ -43,7 +43,7 @@ class Board
       @spaces[start_coords[0]][start_coords[1]] = piece
       return [false, "You can't allow your own king to be in check!"]
     end
-    
+
     if check?(@players[1])
       if mate?(@players[1])
         message += "#\n"
@@ -59,6 +59,22 @@ class Board
   end
 
   private
+  def check?(player)
+    return false
+  end
+
+  def decode_move(move)
+    return ["knight", 0, 0, 1, 2]
+  end
+
+  def find_moves(piece, start)
+    return [start[0] + 1, start[1] + 2]
+  end
+
+  def mate?(player)
+    return false
+  end
+
   def set_up_pieces
     @spaces[0][0] = Piece.rook("white")
     @spaces[1][0] = Piece.knight("white")
