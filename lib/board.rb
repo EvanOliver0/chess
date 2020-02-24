@@ -99,27 +99,30 @@ class Board
     return [pieces[piece_code], files[start[0]], start[1].to_i - 1, files[target[0]], target[1].to_i - 1]
   end
 
-  # Issue: black pawns don't start on rank 1 or move up the board
   def pawn_moves(start, has_moved)
+    advance = current_player.color == "white" ? ->(r, n) {r + n} : ->(r, n) {r - n}
+    home_rank = current_player.color == "white" ? 1 : 6
+    end_rank = current_player.color == "white" ? 7 : 0
+
     moves = []
     file, rank = start
 
-    forward_occupant = @spaces[file][rank + 1]
-    forward2_occupant = @spaces[file][rank + 2]
-    diag_left_occupant = (file == 0 || rank == 7) ? nil : @spaces[file - 1][rank + 1]
-    diag_right_occupant = (file == 7 || rank == 7) ? nil : @spaces[file + 1][rank + 1]
+    forward_occupant = @spaces[file][advance.call(rank, 1)]
+    forward2_occupant = @spaces[file][advance.call(rank, 2)]
+    diag_left_occupant = (file == 0 || rank == end_rank) ? nil : @spaces[file - 1][advance.call(rank, 1)]
+    diag_right_occupant = (file == 7 || rank == end_rank) ? nil : @spaces[file + 1][advance.call(rank, 1)]
 
-    if rank < 7 && forward_occupant.nil?
-      moves << [file, rank + 1]
+    if rank != end_rank && forward_occupant.nil?
+      moves << [file, advance.call(rank, 1)]
     end
-    if rank == 1 && !has_moved && forward_occupant.nil? && forward2_occupant.nil?
-      moves << [file, rank + 2]
+    if rank == home_rank && !has_moved && forward_occupant.nil? && forward2_occupant.nil?
+      moves << [file, advance.call(rank, 2)]
     end
     if !diag_left_occupant.nil? && diag_left_occupant.color != current_player.color
-      moves << [file - 1, rank + 1]
+      moves << [file - 1, advance.call(rank, 1)]
     end
     if !diag_right_occupant.nil? && diag_right_occupant.color != current_player.color
-      moves << [file + 1, rank + 1]
+      moves << [file + 1, advance.call(rank, 1)]
     end
 
     return moves
