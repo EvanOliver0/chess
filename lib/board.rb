@@ -96,13 +96,32 @@ class Board
     start, target = move.split("-") if move.include?("-")
     start, target = move.split("x")
 
-    return [pieces[piece_code], files[start[0]], start[1].to_i, files[target[0]], target[1].to_i]
+    return [pieces[piece_code], files[start[0]], start[1].to_i - 1, files[target[0]], target[1].to_i - 1]
   end
 
+  # Issue: black pawns don't start on rank 1 or move up the board
   def pawn_moves(start, has_moved)
     moves = []
-    moves << [start[0], start[1] + 1] if start[1] < 7
-    moves << [start[0], start[1] + 2] unless has_moved
+    file, rank = start
+
+    forward_occupant = @spaces[file][rank + 1]
+    forward2_occupant = @spaces[file][rank + 2]
+    diag_left_occupant = (file == 0 || rank == 7) ? nil : @spaces[file - 1][rank + 1]
+    diag_right_occupant = (file == 7 || rank == 7) ? nil : @spaces[file + 1][rank + 1]
+
+    if rank < 7 && forward_occupant.nil?
+      moves << [file, rank + 1]
+    end
+    if rank == 1 && !has_moved && forward_occupant.nil? && forward2_occupant.nil?
+      moves << [file, rank + 2]
+    end
+    if !diag_left_occupant.nil? && diag_left_occupant.color != current_player.color
+      moves << [file - 1, rank + 1]
+    end
+    if !diag_right_occupant.nil? && diag_right_occupant.color != current_player.color
+      moves << [file + 1, rank + 1]
+    end
+
     return moves
   end
 
@@ -122,41 +141,124 @@ class Board
     return moves
   end
 
+  # Ugh. There's gotta be a way to make this more DRY.
   def bishop_moves(start)
     moves = []
 
     file, rank = start
     until file + 1 >= @spaces.size || rank + 1 >= @spaces.size do
       file, rank = file + 1, rank + 1
-      moves << [file, rank]
+      occupant = @spaces[file][rank]
+      if occupant.nil?
+        moves << [file, rank]
+      elsif occupant.color == current_player.color
+        break
+      else
+        moves << [file, rank]
+        break
+      end
     end
 
     file, rank = start
     until file - 1 < 0 || rank + 1 >= @spaces.size do
       file, rank = file - 1, rank + 1
-      moves << [file, rank]
+      occupant = @spaces[file][rank]
+      if occupant.nil?
+        moves << [file, rank]
+      elsif occupant.color == current_player.color
+        break
+      else
+        moves << [file, rank]
+        break
+      end
     end
 
     file, rank = start
     until file + 1 >= @spaces.size || rank - 1 < 0 do
       file, rank = file + 1, rank - 1
-      moves << [file, rank]
+      occupant = @spaces[file][rank]
+      if occupant.nil?
+        moves << [file, rank]
+      elsif occupant.color == current_player.color
+        break
+      else
+        moves << [file, rank]
+        break
+      end
     end
 
     file, rank = start
     until file - 1 < 0 || rank - 1 < 0 do
       file, rank = file - 1, rank - 1
-      moves << [file, rank]
+      occupant = @spaces[file][rank]
+      if occupant.nil?
+        moves << [file, rank]
+      elsif occupant.color == current_player.color
+        break
+      else
+        moves << [file, rank]
+        break
+      end
     end
 
     return moves
   end
 
+  # As with bishop_moves: make it DRYer.
   def rook_moves(start)
     moves = []
 
-    8.times { |file| moves << [file, start[1]] unless file == start[0] }
-    8.times { |rank| moves << [start[0], rank] unless rank == start[1] }
+    (start[0] - 1).downto(0) do |file|
+      rank = start[1]
+      occupant = @spaces[file][rank]
+      if occupant.nil?
+        moves << [file, rank]
+      elsif occupant.color == current_player.color
+        break
+      else
+        moves << [file, rank]
+        break
+      end
+    end
+
+    (start[0] + 1).upto(7) do |file|
+      rank = start[1]
+      occupant = @spaces[file][rank]
+      if occupant.nil?
+        moves << [file, rank]
+      elsif occupant.color == current_player.color
+        break
+      else
+        moves << [file, rank]
+        break
+      end
+    end
+
+    (start[1] - 1).downto(0) do |rank|
+      file = start[0]
+      occupant = @spaces[file][rank]
+      if occupant.nil?
+        moves << [file, rank]
+      elsif occupant.color == current_player.color
+        break
+      else
+        moves << [file, rank]
+        break
+      end
+    end
+
+    (start[1] + 1).upto(7) do |rank|
+      file = start[0]
+      occupant = @spaces[file][rank]
+      if occupant.nil?
+        moves << [file, rank]
+      elsif occupant.color == current_player.color
+        break
+      else
+        moves << [file, rank]
+        break
+      end
+    end
 
     return moves
   end
@@ -177,7 +279,14 @@ class Board
     ranks << (start[1] + 1) unless start[1] == 7
 
     moves = []
-    files.each { |file| ranks.each { |rank| moves << [file, rank] unless [file, rank] == start } }
+    files.each do |file|
+      ranks.each do |rank|
+        occupant = @spaces[file][rank]
+        if occupant.nil? || occupant.color != current_player.color
+          moves << [file, rank] unless [file, rank] == start
+        end
+      end
+    end
 
     return moves
   end
