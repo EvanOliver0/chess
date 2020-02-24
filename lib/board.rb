@@ -1,5 +1,5 @@
-require "lib/piece.rb"
-require "lib/player.rb"
+require "./lib/piece.rb"
+require "./lib/player.rb"
 
 class Board
   attr_reader :spaces, :players, :victor
@@ -93,10 +93,10 @@ class Board
       piece_code = "P"
     end
 
-    start, end = move.split("-") if move.include?("-")
-    start, end = move.split("x")
+    start, target = move.split("-") if move.include?("-")
+    start, target = move.split("x")
 
-    return [pieces[piece_code], files[start[0]], start[1].to_i, files[end[0]], end[1].to_i]
+    return [pieces[piece_code], files[start[0]], start[1].to_i, files[target[0]], target[1].to_i]
   end
 
   def pawn_moves(start, has_moved)
