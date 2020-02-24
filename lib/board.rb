@@ -38,6 +38,8 @@ class Board
 
   def make_move(move)
     move_info = decode_move(move)
+    return [false, "Could not decode input - use long algebraic notation."] unless move_info
+
     type = move_info[0]
     start_coords = move_info[1..2]
     end_coords = move_info[3..4]
@@ -93,8 +95,13 @@ class Board
       piece_code = "P"
     end
 
-    start, target = move.split("-") if move.include?("-")
-    start, target = move.split("x")
+    if move.include?("-")
+      start, target = move.split("-")
+    elsif move.include?("x")
+      start, target = move.split("x")
+    else
+      return false
+    end
 
     return [pieces[piece_code], files[start[0]], start[1].to_i - 1, files[target[0]], target[1].to_i - 1]
   end
