@@ -17,6 +17,25 @@ class Board
     return @players[0]
   end
 
+  def find_moves(piece, start)
+    case piece.name
+    when "pawn"
+      return pawn_moves(start, piece.has_moved)
+    when "knight"
+      return knight_moves(start)
+    when "bishop"
+      return bishop_moves(start)
+    when "rook"
+      return rook_moves(start)
+    when "queen"
+      return queen_moves(start)
+    when "king"
+      return king_moves(start)
+    else
+      raise RuntimeError, "Unknown piece: #{piece.name}"
+    end
+  end
+
   def make_move(move)
     move_info = decode_move(move)
     type = move_info[0]
@@ -80,8 +99,85 @@ class Board
     return [pieces[piece_code], files[start[0]], start[1].to_i, files[end[0]], end[1].to_i]
   end
 
-  def find_moves(piece, start)
-    return [start[0] + 1, start[1] + 2]
+  def pawn_moves(start, has_moved)
+    moves = []
+    moves << [start[0], start[1] + 1] if start[1] < 7
+    moves << [start[0], start[1] + 2] unless has_moved
+    return moves
+  end
+
+  def knight_moves(start)
+    offsets = [ [ 2, -1], [ 1, -2], [-1, -2], [-2, -1], \
+                [-2,  1], [-1,  2], [ 1,  2], [ 2,  1] ]
+    moves = []
+
+    offsets.each do |offset|
+      file = start[0] + offset[0]
+      rank = start[1] + offset[1]
+      if file >= 0 && file < @spaces.size && rank >= 0 && rank < @spaces.size
+        moves << [file, rank]
+      end
+    end
+
+    return moves
+  end
+
+  def bishop_moves(start)
+    moves = []
+
+    file, rank = start
+    until file >= @spaces.size || rank >= @spaces.size do
+      file, rank = file + 1, rank + 1
+      moves << [file, rank]
+    end
+
+    file, rank = start
+    until file < 0 || rank >= @spaces.size do
+      file, rank = file - 1, rank + 1
+      moves << [file, rank]
+    end
+
+    file, rank = start
+    until file >= @spaces.size || rank < 0 do
+      file, rank = file + 1, rank - 1
+      moves << [file, rank]
+    end
+
+    file, rank = start
+    until file < 0 || rank < 0 do
+      file, rank = file - 1, rank - 1
+      moves << [file, rank]
+    end
+  end
+
+  def rook_moves(start)
+    moves = []
+
+    8.times { |file| moves << [file, start[1]] unless file == start[0] }
+    8.times { |rank| moves << [start[0], rank] unless rank == start[1] }
+
+    return moves
+  end
+
+  def queen_moves(start)
+    moves = bishop_moves(start)
+    moves.concat rook_moves(start)
+    return moves
+  end
+
+  def king_moves(start)
+    files = [start[0]]
+    files << (start[0] - 1) unless start[0] == 0
+    files << (start[0] + 1) unless start[0] == 7
+
+    ranks = [start[1]]
+    ranks << (start[1] - 1) unless start[1] == 0
+    ranks << (start[1] + 1) unless start[1] == 7
+
+    moves = []
+    files.each { |file| ranks.each { |rank| moves << [file, rank] unless [file, rank] == start } }
+
+    return moves
   end
 
   def mate?(player)
