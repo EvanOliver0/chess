@@ -126,28 +126,30 @@ class Board
     moves = []
 
     file, rank = start
-    until file >= @spaces.size || rank >= @spaces.size do
+    until file + 1 >= @spaces.size || rank + 1 >= @spaces.size do
       file, rank = file + 1, rank + 1
       moves << [file, rank]
     end
 
     file, rank = start
-    until file < 0 || rank >= @spaces.size do
+    until file - 1 < 0 || rank + 1 >= @spaces.size do
       file, rank = file - 1, rank + 1
       moves << [file, rank]
     end
 
     file, rank = start
-    until file >= @spaces.size || rank < 0 do
+    until file + 1 >= @spaces.size || rank - 1 < 0 do
       file, rank = file + 1, rank - 1
       moves << [file, rank]
     end
 
     file, rank = start
-    until file < 0 || rank < 0 do
+    until file - 1 < 0 || rank - 1 < 0 do
       file, rank = file - 1, rank - 1
       moves << [file, rank]
     end
+
+    return moves
   end
 
   def rook_moves(start)
