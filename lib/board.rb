@@ -85,8 +85,8 @@ class Board
   end
 
   def decode_move(move)
-    pieces = {"P": "pawn", "N": "knight", "B": "bishop", "R": "rook", "Q": "queen", "K": "king"}
-    files = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7}
+    pieces = {"P" => "pawn", "N" => "knight", "B" => "bishop", "R" => "rook", "Q" => "queen", "K" => "king"}
+    files = {"a" => 0, "b" => 1, "c" => 2, "d" => 3, "e" => 4, "f" => 5, "g" => 6, "h" => 7}
 
     if move[0] == move[0].upcase
       piece_code = move[0]
