@@ -47,6 +47,8 @@ class Board
     piece = @spaces[start_coords[0]][start_coords[1]]
     return [false, "There is no piece there to move!"] if piece.nil?
 
+    return [false, "That's not your piece!"] unless piece.color == current_player.color
+
     if piece.name != type
       return [false, "There's no #{type} at that space. Did you mean to move the #{piece.name}?"]
     end
@@ -70,11 +72,12 @@ class Board
         message += "#\n"
         message += current_player.color == "white" ? "1-0" : "0-1"
         victor = current_player
-        return [true, message]
       else
         message += "+"
       end
     end
+
+    @players << @players.shift
 
     return [true, message]
   end
