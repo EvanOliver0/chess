@@ -26,4 +26,8 @@ class Player
   def generate_move(board)
     raise(ArgumentError, "get_move requires board argument for AI player") if board.nil?
   end
+
+  def to_s
+    return "#{@color.capitalize} (#{@human ? 'human' : 'AI'})"
+  end
 end

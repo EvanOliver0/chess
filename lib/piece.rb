@@ -13,6 +13,10 @@ class Piece
     @has_moved = true
   end
 
+  def to_s
+    return @symbol
+  end
+
   def self.pawn(color:)
     symbol = color == "white" ? "♙" : "♟"
     return self.new(name: "pawn", color: color, symbol: symbol, value: 1)

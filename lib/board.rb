@@ -79,6 +79,18 @@ class Board
     return [true, message]
   end
 
+  def to_s
+    text = ""
+    (@spaces.size - 1).downto(0) do |i|
+      @spaces[i].size.times do |j|
+        text += @spaces[j][i].nil? ? " " : @spaces[j][i].to_s
+        text += " "
+      end
+      text += "\n"
+    end
+    return text
+  end
+
   private
   def check?(player)
     return false
