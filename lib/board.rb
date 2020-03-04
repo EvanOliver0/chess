@@ -6,11 +6,11 @@ class Board
 
   def initialize(white_human: true, black_human: true)
     @spaces = Array.new(8) { Array.new(8) }
-    set_up_pieces()
     @players = []
     @players << Player.new(color: "white", human: white_human)
     @players << Player.new(color: "black", human: black_human)
     @victor = nil
+    set_up_pieces()
   end
 
   def current_player
@@ -321,37 +321,24 @@ class Board
   end
 
   def set_up_pieces
-    @spaces[0][0] = Piece.rook(color: "white")
-    @spaces[1][0] = Piece.knight(color: "white")
-    @spaces[2][0] = Piece.bishop(color: "white")
-    @spaces[3][0] = Piece.queen(color: "white")
-    @spaces[4][0] = Piece.king(color: "white")
-    @spaces[5][0] = Piece.bishop(color: "white")
-    @spaces[6][0] = Piece.knight(color: "white")
-    @spaces[7][0] = Piece.rook(color: "white")
-    @spaces[0][1] = Piece.pawn(color: "white")
-    @spaces[1][1] = Piece.pawn(color: "white")
-    @spaces[2][1] = Piece.pawn(color: "white")
-    @spaces[3][1] = Piece.pawn(color: "white")
-    @spaces[4][1] = Piece.pawn(color: "white")
-    @spaces[5][1] = Piece.pawn(color: "white")
-    @spaces[6][1] = Piece.pawn(color: "white")
-    @spaces[7][1] = Piece.pawn(color: "white")
-    @spaces[0][7] = Piece.rook(color: "black")
-    @spaces[1][7] = Piece.knight(color: "black")
-    @spaces[2][7] = Piece.bishop(color: "black")
-    @spaces[3][7] = Piece.queen(color: "black")
-    @spaces[4][7] = Piece.king(color: "black")
-    @spaces[5][7] = Piece.bishop(color: "black")
-    @spaces[6][7] = Piece.knight(color: "black")
-    @spaces[7][7] = Piece.rook(color: "black")
-    @spaces[0][6] = Piece.pawn(color: "black")
-    @spaces[1][6] = Piece.pawn(color: "black")
-    @spaces[2][6] = Piece.pawn(color: "black")
-    @spaces[3][6] = Piece.pawn(color: "black")
-    @spaces[4][6] = Piece.pawn(color: "black")
-    @spaces[5][6] = Piece.pawn(color: "black")
-    @spaces[6][6] = Piece.pawn(color: "black")
-    @spaces[7][6] = Piece.pawn(color: "black")
+    @spaces[0][0] = @players[0].pieces[:rooks][0]
+    @spaces[1][0] = @players[0].pieces[:knights][0]
+    @spaces[2][0] = @players[0].pieces[:bishops][0]
+    @spaces[3][0] = @players[0].pieces[:queens][0]
+    @spaces[4][0] = @players[0].pieces[:king]
+    @spaces[5][0] = @players[0].pieces[:bishops][1]
+    @spaces[6][0] = @players[0].pieces[:knights][1]
+    @spaces[7][0] = @players[0].pieces[:rooks][0]
+    8.times { |i| @spaces[i][1] = @players[0].pieces[:pawns][i]}
+
+    @spaces[0][7] = @players[1].pieces[:rooks][0]
+    @spaces[1][7] = @players[1].pieces[:knights][0]
+    @spaces[2][7] = @players[1].pieces[:bishops][0]
+    @spaces[3][7] = @players[1].pieces[:queens][0]
+    @spaces[4][7] = @players[1].pieces[:king]
+    @spaces[5][7] = @players[1].pieces[:bishops][1]
+    @spaces[6][7] = @players[1].pieces[:knights][1]
+    @spaces[7][7] = @players[1].pieces[:rooks][0]
+    8.times { |i| @spaces[i][6] = @players[1].pieces[:pawns][i]}
   end
 end
