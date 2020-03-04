@@ -82,6 +82,17 @@ class Board
     return [true, message]
   end
 
+  def threats_to(coords)
+    threats = []
+    @spaces.size.times do |rank|
+      @spaces.size.times do |file|
+        piece = @spaces[rank][file]
+        threats << piece if (!piece.nil?) && (find_moves(piece, [rank, file]).include? coords)
+      end
+    end
+    return threats
+  end
+
   def to_s
     text = ""
     (@spaces.size - 1).downto(0) do |i|
@@ -96,6 +107,8 @@ class Board
 
   private
   def check?(player)
+    king_coords = find(player.pieces[:king])
+    threats_to(king_coords).each { |piece| return true unless piece.color == player.color }
     return false
   end
 
@@ -119,6 +132,15 @@ class Board
     end
 
     return [pieces[piece_code], files[start[0]], start[1].to_i - 1, files[target[0]], target[1].to_i - 1]
+  end
+
+  def find(piece)
+    @spaces.size.times do |rank|
+      @spaces.size.times do |file|
+        return [rank, file] if @spaces[rank][file] == piece
+      end
+    end
+    return nil
   end
 
   def pawn_moves(start, has_moved)
