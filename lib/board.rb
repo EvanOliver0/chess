@@ -17,20 +17,23 @@ class Board
     return @players[0]
   end
 
-  def find_moves(piece, start)
+  def find_moves(start)
+    piece = @spaces[start[0]][start[1]]
+    return [] if piece.nil?
+
     case piece.name
     when "pawn"
-      return pawn_moves(start, piece.has_moved)
+      return pawn_moves(start, piece)
     when "knight"
-      return knight_moves(start)
+      return knight_moves(start, piece)
     when "bishop"
-      return bishop_moves(start)
+      return bishop_moves(start, piece)
     when "rook"
-      return rook_moves(start)
+      return rook_moves(start, piece)
     when "queen"
-      return queen_moves(start)
+      return queen_moves(start, piece)
     when "king"
-      return king_moves(start)
+      return king_moves(start, piece)
     else
       raise RuntimeError, "Unknown piece: #{piece.name}"
     end
@@ -53,7 +56,7 @@ class Board
       return [false, "There's no #{type} at that space. Did you mean to move the #{piece.name}?"]
     end
 
-    valid_moves = find_moves(piece, start_coords)
+    valid_moves = find_moves(start_coords)
     return [false, "That piece can't move like that."] unless valid_moves.include? end_coords
 
     target = @spaces[end_coords[0]][end_coords[1]]
@@ -87,7 +90,7 @@ class Board
     @spaces.size.times do |rank|
       @spaces.size.times do |file|
         piece = @spaces[rank][file]
-        threats << piece if (!piece.nil?) && (find_moves(piece, [rank, file]).include? coords)
+        threats << piece if (!piece.nil?) && (find_moves([rank, file]).include? coords)
       end
     end
     return threats
