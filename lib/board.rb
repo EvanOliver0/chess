@@ -146,10 +146,10 @@ class Board
     return nil
   end
 
-  def pawn_moves(start, has_moved)
-    advance = current_player.color == "white" ? ->(r, n) {r + n} : ->(r, n) {r - n}
-    home_rank = current_player.color == "white" ? 1 : 6
-    end_rank = current_player.color == "white" ? 7 : 0
+  def pawn_moves(start, actor)
+    advance = actor.color == "white" ? ->(r, n) {r + n} : ->(r, n) {r - n}
+    home_rank = actor.color == "white" ? 1 : 6
+    end_rank = actor.color == "white" ? 7 : 0
 
     moves = []
     file, rank = start
@@ -162,20 +162,20 @@ class Board
     if rank != end_rank && forward_occupant.nil?
       moves << [file, advance.call(rank, 1)]
     end
-    if rank == home_rank && !has_moved && forward_occupant.nil? && forward2_occupant.nil?
+    if rank == home_rank && !actor.has_moved && forward_occupant.nil? && forward2_occupant.nil?
       moves << [file, advance.call(rank, 2)]
     end
-    if !diag_left_occupant.nil? && diag_left_occupant.color != current_player.color
+    if !diag_left_occupant.nil? && diag_left_occupant.color != actor.color
       moves << [file - 1, advance.call(rank, 1)]
     end
-    if !diag_right_occupant.nil? && diag_right_occupant.color != current_player.color
+    if !diag_right_occupant.nil? && diag_right_occupant.color != actor.color
       moves << [file + 1, advance.call(rank, 1)]
     end
 
     return moves
   end
 
-  def knight_moves(start)
+  def knight_moves(start, actor)
     offsets = [ [ 2, -1], [ 1, -2], [-1, -2], [-2, -1], \
                 [-2,  1], [-1,  2], [ 1,  2], [ 2,  1] ]
     moves = []
@@ -192,7 +192,7 @@ class Board
   end
 
   # Ugh. There's gotta be a way to make this more DRY.
-  def bishop_moves(start)
+  def bishop_moves(start, actor)
     moves = []
 
     file, rank = start
@@ -201,7 +201,7 @@ class Board
       occupant = @spaces[file][rank]
       if occupant.nil?
         moves << [file, rank]
-      elsif occupant.color == current_player.color
+      elsif occupant.color == actor.color
         break
       else
         moves << [file, rank]
@@ -215,7 +215,7 @@ class Board
       occupant = @spaces[file][rank]
       if occupant.nil?
         moves << [file, rank]
-      elsif occupant.color == current_player.color
+      elsif occupant.color == actor.color
         break
       else
         moves << [file, rank]
@@ -229,7 +229,7 @@ class Board
       occupant = @spaces[file][rank]
       if occupant.nil?
         moves << [file, rank]
-      elsif occupant.color == current_player.color
+      elsif occupant.color == actor.color
         break
       else
         moves << [file, rank]
@@ -243,7 +243,7 @@ class Board
       occupant = @spaces[file][rank]
       if occupant.nil?
         moves << [file, rank]
-      elsif occupant.color == current_player.color
+      elsif occupant.color == actor.color
         break
       else
         moves << [file, rank]
@@ -255,7 +255,7 @@ class Board
   end
 
   # As with bishop_moves: make it DRYer.
-  def rook_moves(start)
+  def rook_moves(start, actor)
     moves = []
 
     (start[0] - 1).downto(0) do |file|
@@ -263,7 +263,7 @@ class Board
       occupant = @spaces[file][rank]
       if occupant.nil?
         moves << [file, rank]
-      elsif occupant.color == current_player.color
+      elsif occupant.color == actor.color
         break
       else
         moves << [file, rank]
@@ -276,7 +276,7 @@ class Board
       occupant = @spaces[file][rank]
       if occupant.nil?
         moves << [file, rank]
-      elsif occupant.color == current_player.color
+      elsif occupant.color == actor.color
         break
       else
         moves << [file, rank]
@@ -289,7 +289,7 @@ class Board
       occupant = @spaces[file][rank]
       if occupant.nil?
         moves << [file, rank]
-      elsif occupant.color == current_player.color
+      elsif occupant.color == actor.color
         break
       else
         moves << [file, rank]
@@ -302,7 +302,7 @@ class Board
       occupant = @spaces[file][rank]
       if occupant.nil?
         moves << [file, rank]
-      elsif occupant.color == current_player.color
+      elsif occupant.color == actor.color
         break
       else
         moves << [file, rank]
@@ -313,13 +313,13 @@ class Board
     return moves
   end
 
-  def queen_moves(start)
+  def queen_moves(start, actor)
     moves = bishop_moves(start)
     moves.concat rook_moves(start)
     return moves
   end
 
-  def king_moves(start)
+  def king_moves(start, actor)
     files = [start[0]]
     files << (start[0] - 1) unless start[0] == 0
     files << (start[0] + 1) unless start[0] == 7
@@ -332,7 +332,7 @@ class Board
     files.each do |file|
       ranks.each do |rank|
         occupant = @spaces[file][rank]
-        if occupant.nil? || occupant.color != current_player.color
+        if occupant.nil? || occupant.color != actor.color
           moves << [file, rank] unless [file, rank] == start
         end
       end
