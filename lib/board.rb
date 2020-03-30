@@ -184,7 +184,7 @@ class Board
       file = start[0] + offset[0]
       rank = start[1] + offset[1]
       if file >= 0 && file < @spaces.size && rank >= 0 && rank < @spaces.size
-        moves << [file, rank]
+        moves << [file, rank] unless @spaces[file][rank].color == actor.color
       end
     end
 
