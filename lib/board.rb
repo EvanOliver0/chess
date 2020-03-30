@@ -342,7 +342,20 @@ class Board
   end
 
   def mate?(player)
-    return false
+    return false unless check?(player)
+
+    king_coords = find(player.pieces[:king])
+    moves = king_moves(king_coords)
+
+    puts "#{player.color.capitalize} kings's moves: "
+
+    moves.each do |move|
+      print "#{move}; threats: "
+      p threats_to(move)
+      return false if threats_to(move).none? { |piece| piece.color != player.color }
+    end
+
+    return true
   end
 
   def set_up_pieces
