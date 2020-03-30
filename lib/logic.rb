@@ -153,7 +153,10 @@ class Logic
         file = start[0] + offset[0]
         rank = start[1] + offset[1]
         if file >= 0 && file < spaces.size && rank >= 0 && rank < spaces.size
-          moves << [file, rank] unless spaces[file][rank].color == actor.color
+          occupant = spaces[file][rank]
+          if occupant.nil? || occupant.color != actor.color
+            moves << [file, rank]
+          end
         end
       end
 
@@ -164,7 +167,7 @@ class Logic
       return false unless check?(spaces, player)
 
       king_coords = find(spaces, player.pieces[:king])
-      moves = king_moves(spaces, king_coords)
+      moves = king_moves(spaces, king_coords, player.pieces[:king])
 
       puts "#{player.color.capitalize} kings's moves: "
 
