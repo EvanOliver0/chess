@@ -385,16 +385,67 @@ describe Logic do
   end
 
   describe "#threats_to" do
-    it "returns an array of all pieces threatening the space at the given coordinates" do
+    before(:each) do
+      @black_pawn = instance_double("piece")
+      allow(@black_pawn).to receive(:name).and_return("pawn")
+      allow(@black_pawn).to receive(:color).and_return("black")
+      allow(@black_pawn).to receive(:to_s).and_return("BP")
 
+      @white_knight = instance_double("piece")
+      allow(@white_knight).to receive(:name).and_return("knight")
+      allow(@white_knight).to receive(:color).and_return("white")
+      allow(@white_knight).to receive(:to_s).and_return("WN")
+
+      @black_bishop = instance_double("piece")
+      allow(@black_bishop).to receive(:name).and_return("bishop")
+      allow(@black_bishop).to receive(:color).and_return("black")
+      allow(@black_bishop).to receive(:to_s).and_return("BB")
+
+      @white_rook = instance_double("piece")
+      allow(@white_rook).to receive(:name).and_return("rook")
+      allow(@white_rook).to receive(:color).and_return("white")
+      allow(@white_rook).to receive(:to_s).and_return("WR")
+
+      @black_queen = instance_double("piece")
+      allow(@black_queen).to receive(:name).and_return("queen")
+      allow(@black_queen).to receive(:color).and_return("black")
+      allow(@black_queen).to receive(:to_s).and_return("BQ")
+
+      @white_king = instance_double("piece")
+      allow(@white_king).to receive(:name).and_return("king")
+      allow(@white_king).to receive(:color).and_return("white")
+      allow(@white_king).to receive(:to_s).and_return("WK")
+
+      @spaces = Array.new(8) { Array.new(8) }
+      @spaces[0][4] = @white_rook
+      @spaces[1][6] = @black_bishop
+      @spaces[2][3] = @white_king
+      @spaces[4][5] = @black_pawn
+      @spaces[5][3] = @white_knight
+      @spaces[7][4] = @black_queen
+    end
+
+    it "returns an array of all pieces threatening the space at the given coordinates" do
+      threats = Logic.threats_to(@spaces, [3, 4])
+      puts 1
+      puts threats
+      expect(threats).to match_array([@black_pawn, @white_knight, @black_bishop, @white_rook, @black_queen, @white_king])
     end
 
     it "returns an empty array when nothing is threatening the space" do
-
+      threats = Logic.threats_to(@spaces, [1, 0])
+      puts 2
+      puts threats
+      expect(threats).to match_array([])
     end
 
     it "does not include the occupant if the space is occupied" do
-
+      @spaces[2][3] = nil
+      @spaces[3][4] = @white_king
+      puts 3
+      threats = Logic.threats_to(@spaces, [3, 4])
+      puts threats
+      expect(threats).to match_array([@black_pawn, @white_knight, @black_bishop, @white_rook, @black_queen])
     end
   end
 
