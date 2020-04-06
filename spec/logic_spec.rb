@@ -83,40 +83,6 @@ describe Logic do
     end
   end
 
-  describe "#find_moves" do
-    it "finds all possible moves for a king" do
-
-    end
-
-    it "finds all possible moves for a queen" do
-
-    end
-
-    it "finds all possible moves for a rook" do
-
-    end
-
-    it "finds all possible moves for a bishop" do
-
-    end
-
-    it "finds all possible moves for a knight" do
-
-    end
-
-    it "finds all possible moves for a pawn that hasn't moved" do
-
-    end
-
-    it "finds all possible moves for a pawn that has moved" do
-
-    end
-
-    it "finds all possible moves for a pawn that can take a piece" do
-
-    end
-  end
-
   describe "#king_moves" do
     before(:each) do
       @spaces = Array.new(8) { Array.new(8) }
