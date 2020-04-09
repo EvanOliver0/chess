@@ -499,25 +499,22 @@ describe Logic do
 
     it "returns an array of all pieces threatening the space at the given coordinates" do
       threats = Logic.threats_to(@spaces, [3, 4])
-      puts 1
-      puts threats
-      expect(threats).to match_array([@black_pawn, @white_knight, @black_bishop, @white_rook, @black_queen, @white_king])
+      ids = threats.map { |threat| threat.to_s }
+      expect(ids).to match_array(["BP", "WN", "BB", "WR", "BQ", "WK"])
     end
 
     it "returns an empty array when nothing is threatening the space" do
       threats = Logic.threats_to(@spaces, [1, 0])
-      puts 2
-      puts threats
-      expect(threats).to match_array([])
+      ids = threats.map { |threat| threat.to_s }
+      expect(ids).to match_array([])
     end
 
     it "does not include the occupant if the space is occupied" do
       @spaces[2][3] = nil
       @spaces[3][4] = @white_king
-      puts 3
       threats = Logic.threats_to(@spaces, [3, 4])
-      puts threats
-      expect(threats).to match_array([@black_pawn, @white_knight, @black_bishop, @white_rook, @black_queen])
+      ids = threats.map { |threat| threat.to_s }
+      expect(ids).to match_array(["BP", "WN", "BB", "WR", "BQ"])
     end
   end
 
