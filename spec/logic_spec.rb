@@ -4,9 +4,7 @@ describe Logic do
   describe "#bishop_moves" do
     before(:each) do
       @spaces = Array.new(8) { Array.new(8) }
-
-      @subject = instance_double("piece")
-      allow(@subject).to receive(:color).and_return("white")
+      @subject = mock_piece("bishop", "white", "WB")
     end
 
     it "returns all & only legal moves for a bishop with no pieces blocking it" do
@@ -20,7 +18,7 @@ describe Logic do
     end
 
     it "returns all & only legal moves for a bishop blocked by allied pieces" do
-      @spaces = setup( [ [2, 3], [1, 6], [6, 7], [7, 0] ], "white" )
+      @spaces = set_pawns( [[2, 3], [1, 6], [6, 7], [7, 0]], "white" )
       expected = [[2, 5], \
                   [4, 5], [5, 6], \
                   [4, 3], [5, 2], [6, 1]]
@@ -30,7 +28,7 @@ describe Logic do
     end
 
     it "returns all & only legal moves for a bishop that can take enemy pieces" do
-      @spaces = setup( [ [2, 3], [1, 6], [6, 7], [7, 0] ], "black" )
+      @spaces = set_pawns( [[2, 3], [1, 6], [6, 7], [7, 0]], "black" )
       expected = [[2, 3], \
                   [2, 5], [1, 6], \
                   [4, 5], [5, 6], [6, 7], \
@@ -41,7 +39,7 @@ describe Logic do
     end
 
     it "returns an empty array for a bishop with no legal moves" do
-      @spaces = setup( [ [0, 1], [1, 1], [1, 0] ], "white" )
+      @spaces = set_pawns( [[0, 1], [1, 1], [1, 0]], "white" )
       expected = []
 
       moves = Logic.bishop_moves(@spaces, [0, 0], @subject)
@@ -52,18 +50,9 @@ describe Logic do
   describe "#check?" do
     before(:each) do
       @spaces = Array.new(8) { Array.new(8) }
-
-      @king = instance_double("piece")
-      allow(@king).to receive(:color).and_return("black")
-      allow(@king).to receive(:name).and_return("king")
-
-      @pawn = instance_double("piece")
-      allow(@pawn).to receive(:color).and_return("black")
-      allow(@pawn).to receive(:name).and_return("pawn")
-
-      @enemy_queen = instance_double("piece")
-      allow(@enemy_queen).to receive(:color).and_return("white")
-      allow(@enemy_queen).to receive(:name).and_return("queen")
+      @king = mock_piece("king", "black", "BK")
+      @pawn = mock_piece("pawn", "black", "BP")
+      @enemy_queen = mock_piece("queen", "white", "WQ")
 
       @player = instance_double("player")
       allow(@player).to receive(:color).and_return("black")
@@ -130,9 +119,7 @@ describe Logic do
   describe "#king_moves" do
     before(:each) do
       @spaces = Array.new(8) { Array.new(8) }
-
-      @subject = instance_double("piece")
-      allow(@subject).to receive(:color).and_return("white")
+      @subject = mock_piece("king", "white", "WK")
     end
 
     it "returns all & only legal moves for a king with no pieces blocking it" do
@@ -154,7 +141,7 @@ describe Logic do
     end
 
     it "returns all & only legal moves for a king blocked by allied pieces" do
-      @spaces = setup( [ [2, 3], [3, 5], [4, 5] ], "white" )
+      @spaces = set_pawns( [[2, 3], [3, 5], [4, 5]], "white" )
       expected = [[2, 4], [2, 5], \
                   [3, 3], \
                   [4, 3], [4, 4]]
@@ -164,7 +151,7 @@ describe Logic do
     end
 
     it "returns all & only legal moves for a king that can take enemy pieces" do
-      @spaces = setup( [ [2, 3], [3, 5], [4, 5] ], "black" )
+      @spaces = set_pawns( [[2, 3], [3, 5], [4, 5]], "black" )
       expected = [[2, 3], [2, 4], [2, 5], \
                   [3, 3], [3, 5], \
                   [4, 3], [4, 4], [4, 5]]
@@ -174,7 +161,7 @@ describe Logic do
     end
 
     it "returns an empty array for a king with no legal moves" do
-      @spaces = setup( [ [3, 0], [3, 1], [4, 1], [5, 0], [5, 1] ], "white" )
+      @spaces = set_pawns( [[3, 0], [3, 1], [4, 1], [5, 0], [5, 1]], "white" )
       expected = []
 
       moves = Logic.king_moves(@spaces, [4, 0], @subject)
@@ -185,9 +172,7 @@ describe Logic do
   describe "#knight_moves" do
     before(:each) do
       @spaces = Array.new(8) { Array.new(8) }
-
-      @subject = instance_double("piece")
-      allow(@subject).to receive(:color).and_return("white")
+      @subject = mock_piece("knight", "white", "WN")
     end
 
     it "returns all & only legal moves for a knight with no pieces blocking it" do
@@ -198,14 +183,14 @@ describe Logic do
     end
 
     it "returns all & only legal moves for a knight near the edge of the board" do
-      expected = [ [0, 4], [2, 4], [3, 5], [3, 7] ]
+      expected = [[0, 4], [2, 4], [3, 5], [3, 7]]
 
       moves = Logic.knight_moves(@spaces, [1, 6], @subject)
       expect(moves).to match_array(expected)
     end
 
     it "returns all & only legal moves for a knight blocked by allied pieces" do
-      @spaces = setup( [ [4, 2], [5, 3], [1, 3] ], "white" )
+      @spaces = set_pawns( [[4, 2], [5, 3], [1, 3]], "white" )
       expected = [[2, 2], [1, 5], [2, 6], [4, 6], [5, 5]]
 
       moves = Logic.knight_moves(@spaces, [3, 4], @subject)
@@ -213,8 +198,8 @@ describe Logic do
     end
 
     it "allows the knight to jump over other pieces" do
-      @spaces = setup( [ [2, 4], [4, 4] ], "white" )
-      @spaces = setup( [ [3, 3], [3, 5] ], "black" )
+      @spaces = set_pawns( [[2, 4], [4, 4]], "white" )
+      @spaces = set_pawns( [[3, 3], [3, 5]], "black" )
       expected = [[2, 2], [1, 3], [1, 5], [2, 6], [4, 6], [5, 5], [5, 3], [4, 2]]
 
       moves = Logic.knight_moves(@spaces, [3, 4], @subject)
@@ -222,7 +207,7 @@ describe Logic do
     end
 
     it "returns all & only legal moves for a knight that can take enemy pieces" do
-      @spaces = setup( [ [4, 2], [5, 3], [1, 3] ], "black" )
+      @spaces = set_pawns( [[4, 2], [5, 3], [1, 3]], "black" )
       expected = [[2, 2], [1, 3], [1, 5], [2, 6], [4, 6], [5, 5], [5, 3], [4, 2]]
 
       moves = Logic.knight_moves(@spaces, [3, 4], @subject)
@@ -230,7 +215,7 @@ describe Logic do
     end
 
     it "returns an empty array for a knight with no legal moves" do
-      @spaces = setup( [ [1, 5], [2, 6] ], "white" )
+      @spaces = set_pawns( [[1, 5], [2, 6]], "white" )
       expected = []
 
       moves = Logic.knight_moves(@spaces, [0, 7], @subject)
@@ -241,14 +226,8 @@ describe Logic do
   describe "#mate?" do
     before(:each) do
       @spaces = Array.new(8) { Array.new(8) }
-
-      @king = instance_double("piece")
-      allow(@king).to receive(:color).and_return("black")
-      allow(@king).to receive(:name).and_return("king")
-
-      @enemy_rook = instance_double("piece")
-      allow(@enemy_rook).to receive(:color).and_return("white")
-      allow(@enemy_rook).to receive(:name).and_return("rook")
+      @king = mock_piece("king", "black", "BK")
+      @enemy_rook = mock_piece("rook", "white", "WR")
 
       @player = instance_double("player")
       allow(@player).to receive(:color).and_return("black")
@@ -284,9 +263,7 @@ describe Logic do
     context "when pawn is white" do
       before(:each) do
         @spaces = Array.new(8) { Array.new(8) }
-
-        @subject = instance_double("piece")
-        allow(@subject).to receive(:color).and_return("white")
+        @subject = mock_piece("pawn", "white", "WP")
       end
 
       it "returns both moves for an unblocked pawn that hasn't moved" do
@@ -302,13 +279,13 @@ describe Logic do
       end
 
       it "includes diagonal moves for a pawn that can take enemy pieces" do
-        @spaces = setup( [ [1, 4], [3, 4] ], "black" )
+        @spaces = set_pawns( [[1, 4], [3, 4]], "black" )
         moves = Logic.pawn_moves(@spaces, [2, 3], @subject)
         expect(moves).to match_array([[2, 4], [1, 4], [3, 4]])
       end
 
       it "does not allow a pawn to move or attack backwards" do
-        @spaces = setup( [ [1, 4], [3, 4] ], "black" )
+        @spaces = set_pawns( [[1, 4], [3, 4]], "black" )
         moves = Logic.pawn_moves(@spaces, [2, 5], @subject)
         expect(moves).to match_array([[2, 6]])
       end
@@ -317,9 +294,7 @@ describe Logic do
     context "when pawn is black" do
       before(:each) do
         @spaces = Array.new(8) { Array.new(8) }
-
-        @subject = instance_double("piece")
-        allow(@subject).to receive(:color).and_return("black")
+        @subject = mock_piece("pawn", "black", "BP")
       end
 
       it "returns both moves for an unblocked pawn that hasn't moved" do
@@ -335,13 +310,13 @@ describe Logic do
       end
 
       it "includes diagonal moves for a pawn that can take enemy pieces" do
-        @spaces = setup( [ [1, 3], [3, 3] ], "white" )
+        @spaces = set_pawns( [[1, 3], [3, 3]], "white" )
         moves = Logic.pawn_moves(@spaces, [2, 4], @subject)
         expect(moves).to match_array([[2, 3], [1, 3], [3, 3]])
       end
 
       it "does not allow a pawn to move or attack backwards" do
-        @spaces = setup( [ [1, 4], [3, 4] ], "white" )
+        @spaces = set_pawns( [[1, 4], [3, 4]], "white" )
         moves = Logic.pawn_moves(@spaces, [2, 3], @subject)
         expect(moves).to match_array([[2, 2]])
       end
@@ -352,8 +327,7 @@ describe Logic do
     before(:each) do
       @spaces = Array.new(8) { Array.new(8) }
 
-      @subject = instance_double("piece")
-      allow(@subject).to receive(:color).and_return("white")
+      @subject = mock_piece("queen", "white", "WQ")
     end
 
     it "returns all & only legal moves for a queen with no pieces blocking it" do
@@ -371,7 +345,7 @@ describe Logic do
     end
 
     it "returns all & only legal moves for a queen blocked by allied pieces" do
-      @spaces = setup( [ [0, 0], [1, 3], [3, 4] ], "white" )
+      @spaces = set_pawns( [[0, 0], [1, 3], [3, 4]], "white" )
       expected = [[1, 1], [2, 2], \
                   [2, 3], \
                   [2, 4], [1, 5], [0, 6], \
@@ -385,7 +359,7 @@ describe Logic do
     end
 
     it "returns all & only legal moves for a queen that can take enemy pieces" do
-      @spaces = setup( [ [0, 0], [1, 3], [3, 4] ], "black" )
+      @spaces = set_pawns( [[0, 0], [1, 3], [3, 4]], "black" )
       expected = [[0, 0], [1, 1], [2, 2], \
                   [1, 3], [2, 3], \
                   [2, 4], [1, 5], [0, 6], \
@@ -400,7 +374,7 @@ describe Logic do
     end
 
     it "returns an empty array for a queen with no legal moves" do
-      @spaces = setup( [ [2, 0], [2, 1], [3, 1], [4, 1], [4, 0] ], "white" )
+      @spaces = set_pawns( [[2, 0], [2, 1], [3, 1], [4, 1], [4, 0]], "white" )
       expected = []
 
       moves = Logic.queen_moves(@spaces, [3, 0], @subject)
@@ -411,9 +385,7 @@ describe Logic do
   describe "rook_moves" do
     before(:each) do
       @spaces = Array.new(8) { Array.new(8) }
-
-      @subject = instance_double("piece")
-      allow(@subject).to receive(:color).and_return("white")
+      @subject = mock_piece("rook", "white", "WR")
     end
 
     it "returns all & only legal moves for a rook with no pieces blocking it" do
@@ -427,7 +399,7 @@ describe Logic do
     end
 
     it "returns all & only legal moves for a rook blocked by allied pieces" do
-      @spaces = setup( [ [2, 3], [3, 5], [7, 3] ], "white" )
+      @spaces = set_pawns( [[2, 3], [3, 5], [7, 3]], "white" )
       expected = [[3, 4], \
                   [4, 3], [5, 3], [6, 3], \
                   [3, 0], [3, 1], [3, 2]]
@@ -437,7 +409,7 @@ describe Logic do
     end
 
     it "returns all & only legal moves for a rook that can take enemy pieces" do
-      @spaces = setup( [ [2, 3], [3, 5], [7, 3] ], "black" )
+      @spaces = set_pawns( [[2, 3], [3, 5], [7, 3]], "black" )
       expected = [[2, 3], \
                   [3, 4], [3, 5], \
                   [4, 3], [5, 3], [6, 3], [7, 3], \
@@ -448,7 +420,7 @@ describe Logic do
     end
 
     it "returns an empty array for a rook with no legal moves" do
-      @spaces = setup( [ [0, 1], [1, 1], [1, 0] ], "white" )
+      @spaces = set_pawns( [[0, 1], [1, 1], [1, 0]], "white" )
       expected = []
 
       moves = Logic.rook_moves(@spaces, [0, 0], @subject)
@@ -458,35 +430,12 @@ describe Logic do
 
   describe "#threats_to" do
     before(:each) do
-      @black_pawn = instance_double("piece")
-      allow(@black_pawn).to receive(:name).and_return("pawn")
-      allow(@black_pawn).to receive(:color).and_return("black")
-      allow(@black_pawn).to receive(:to_s).and_return("BP")
-
-      @white_knight = instance_double("piece")
-      allow(@white_knight).to receive(:name).and_return("knight")
-      allow(@white_knight).to receive(:color).and_return("white")
-      allow(@white_knight).to receive(:to_s).and_return("WN")
-
-      @black_bishop = instance_double("piece")
-      allow(@black_bishop).to receive(:name).and_return("bishop")
-      allow(@black_bishop).to receive(:color).and_return("black")
-      allow(@black_bishop).to receive(:to_s).and_return("BB")
-
-      @white_rook = instance_double("piece")
-      allow(@white_rook).to receive(:name).and_return("rook")
-      allow(@white_rook).to receive(:color).and_return("white")
-      allow(@white_rook).to receive(:to_s).and_return("WR")
-
-      @black_queen = instance_double("piece")
-      allow(@black_queen).to receive(:name).and_return("queen")
-      allow(@black_queen).to receive(:color).and_return("black")
-      allow(@black_queen).to receive(:to_s).and_return("BQ")
-
-      @white_king = instance_double("piece")
-      allow(@white_king).to receive(:name).and_return("king")
-      allow(@white_king).to receive(:color).and_return("white")
-      allow(@white_king).to receive(:to_s).and_return("WK")
+      @black_pawn = mock_piece("pawn", "black", "BP")
+      @white_knight = mock_piece("knight", "white", "WN")
+      @black_bishop = mock_piece("bishop", "black", "BB")
+      @white_rook = mock_piece("rook", "white", "WR")
+      @black_queen = mock_piece("queen", "black", "BQ")
+      @white_king = mock_piece("king", "white", "WK")
 
       @spaces = Array.new(8) { Array.new(8) }
       @spaces[0][4] = @white_rook
@@ -518,11 +467,19 @@ describe Logic do
     end
   end
 
-  def setup(positions, color)
+  def mock_piece(name, color, text)
+    piece = instance_double("piece")
+    allow(piece).to receive(:name).and_return(name)
+    allow(piece).to receive(:color).and_return(color)
+    allow(piece).to receive(:to_s).and_return(text)
+
+    return piece
+  end
+
+  def set_pawns(positions, color)
     spaces = Array.new(8) { Array.new(8) }
 
-    mock = instance_double("piece")
-    allow(mock).to receive(:color).and_return(color)
+    mock = mock_piece("pawn", color, color[0].upcase + "P")
 
     positions.each do |rank, file|
       spaces[rank][file] = mock
