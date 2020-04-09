@@ -50,12 +50,46 @@ describe Logic do
   end
 
   describe "#check?" do
-    it "returns true when the player's king is in check" do
+    before(:each) do
+      @spaces = Array.new(8) { Array.new(8) }
 
+      @king = instance_double("piece")
+      allow(@king).to receive(:color).and_return("black")
+      allow(@king).to receive(:name).and_return("king")
+
+      @pawn = instance_double("piece")
+      allow(@pawn).to receive(:color).and_return("black")
+      allow(@pawn).to receive(:name).and_return("pawn")
+
+      @enemy_queen = instance_double("piece")
+      allow(@enemy_queen).to receive(:color).and_return("white")
+      allow(@enemy_queen).to receive(:name).and_return("queen")
+
+      @player = instance_double("player")
+      allow(@player).to receive(:color).and_return("black")
+      allow(@player).to receive(:pieces).and_return( {king: @king} )
+    end
+
+    it "returns true when the player's king is in check" do
+      @spaces[4][7] = @king
+      @spaces[4][0] = @enemy_queen
+
+      expect(Logic.check?(@spaces, @player)).to be_true
     end
 
     it "returns false when the player's king is not in check" do
+      @spaces[4][7] = @king
+      @spaces[3][0] = @enemy_queen
 
+      expect(Logic.check?(@spaces, @player)).to be_false
+    end
+
+    it "returns false when the a potential check is blocked" do
+      @spaces[4][7] = @king
+      @spaces[4][0] = @enemy_queen
+      @spaces[4][1] = @pawn
+
+      expect(Logic.check?(@spaces, @player)).to be_false
     end
   end
 
