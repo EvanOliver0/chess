@@ -170,10 +170,12 @@ class Logic
       moves = king_moves(spaces, king_coords, player.pieces[:king])
 
       puts "#{player.color.capitalize} kings's moves: "
-
       moves.each do |move|
         print "#{move}; threats: "
-        p threats_to(spaces, move)
+        p threats_to(spaces, move).map { |threat| threat.color + "_" + threat.name}
+      end
+
+      moves.each do |move|
         return false if threats_to(spaces, move).none? { |piece| piece.color != player.color }
       end
 
