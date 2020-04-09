@@ -111,12 +111,19 @@ describe Logic do
   end
 
   describe "#find" do
-    it "returns the location of a piece on the board" do
+    before(:each) do
+      @spaces = Array.new(8) { Array.new(8) }
+      @piece = instance_double("piece")
+    end
 
+    it "returns the location of a piece on the board" do
+      @spaces[6][5] = @piece
+      expect(Logic.find(@spaces, @piece)).to eql([6, 5])
     end
 
     it "returns nil for a piece which is not on the board" do
-
+      @spaces[6][5] = @piece
+      expect(Logic.find(@spaces, instance_double("piece"))).to eql(nil)
     end
   end
 
