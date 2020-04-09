@@ -239,16 +239,44 @@ describe Logic do
   end
 
   describe "#mate?" do
-    it "returns true when the player has been checkmated" do
+    before(:each) do
+      @spaces = Array.new(8) { Array.new(8) }
 
+      @king = instance_double("piece")
+      allow(@king).to receive(:color).and_return("black")
+      allow(@king).to receive(:name).and_return("king")
+
+      @enemy_rook = instance_double("piece")
+      allow(@enemy_rook).to receive(:color).and_return("white")
+      allow(@enemy_rook).to receive(:name).and_return("rook")
+
+      @player = instance_double("player")
+      allow(@player).to receive(:color).and_return("black")
+      allow(@player).to receive(:pieces).and_return( {king: @king} )
+    end
+
+    it "returns true when the player has been checkmated" do
+      @spaces[4][7] = @king
+      @spaces[0][7] = @enemy_rook
+      @spaces[7][6] = @enemy_rook
+
+      expect(Logic.mate?(@spaces, @player)).to be true
     end
 
     it "returns false when the player is in check, but not checkmate" do
+      @spaces[4][7] = @king
+      @spaces[0][7] = @enemy_rook
+      @spaces[7][5] = @enemy_rook
 
+      expect(Logic.mate?(@spaces, @player)).to be false
     end
 
     it "returns false when the player is in neither check nor checkmate" do
+      @spaces[4][7] = @king
+      @spaces[0][0] = @enemy_rook
+      @spaces[7][0] = @enemy_rook
 
+      expect(Logic.mate?(@spaces, @player)).to be false
     end
   end
 
