@@ -95,15 +95,18 @@ describe Logic do
 
   describe "#decode_move" do
     it "turns long algebraic notation into [type, file0, rank0, file1, rank1]" do
-
+      expected = ["knight", 3, 2, 4, 0]
+      expect(Logic.decode_move("Nd3-e1")).to eql(expected)
     end
 
     it "works for pawns without the type being specified" do
-
+      expected = ["pawn", 0, 1, 0, 3]
+      expect(Logic.decode_move("a2-a4")).to eql(expected)
     end
 
     it "works when using x instead of -" do
-
+      expected = ["rook", 7, 0, 7, 7]
+      expect(Logic.decode_move("Rh1-h8")).to eql(expected)
     end
   end
 
