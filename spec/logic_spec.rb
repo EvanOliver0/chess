@@ -74,14 +74,14 @@ describe Logic do
       @spaces[4][7] = @king
       @spaces[4][0] = @enemy_queen
 
-      expect(Logic.check?(@spaces, @player)).to be_true
+      expect(Logic.check?(@spaces, @player)).to be true
     end
 
     it "returns false when the player's king is not in check" do
       @spaces[4][7] = @king
       @spaces[3][0] = @enemy_queen
 
-      expect(Logic.check?(@spaces, @player)).to be_false
+      expect(Logic.check?(@spaces, @player)).to be false
     end
 
     it "returns false when the a potential check is blocked" do
@@ -89,7 +89,7 @@ describe Logic do
       @spaces[4][0] = @enemy_queen
       @spaces[4][1] = @pawn
 
-      expect(Logic.check?(@spaces, @player)).to be_false
+      expect(Logic.check?(@spaces, @player)).to be false
     end
   end
 
