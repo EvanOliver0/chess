@@ -227,7 +227,6 @@ describe Logic do
     before(:each) do
       @spaces = Array.new(8) { Array.new(8) }
       @king = mock_piece("king", "black", "BK")
-      @enemy_rook = mock_piece("rook", "white", "WR")
 
       @player = instance_double("player")
       allow(@player).to receive(:color).and_return("black")
@@ -235,9 +234,61 @@ describe Logic do
     end
 
     it "returns true when the player has been checkmated" do
+      @enemy_bishop = mock_piece("bishop", "white", "WR")
+      @enemy_knight = mock_piece("knight", "white", "WN")
+      @enemy_king = mock_piece("king", "white", "WK")
+
+      @spaces[7][7] = @king
+      @spaces[5][5] = @enemy_bishop
+      @spaces[6][5] = @enemy_king
+      @spaces[7][5] = @enemy_knight
+
+      expect(Logic.mate?(@spaces, @player)).to be true
+    end
+
+    it "does not consider the king's 'shadow' to be a way out of checkmate" do
+      @enemy_rook = mock_piece("rook", "white", "WR")
+
+      set_pawns( [[3, 6], [4, 6], [5, 6]], "black")
       @spaces[4][7] = @king
       @spaces[0][7] = @enemy_rook
-      @spaces[7][6] = @enemy_rook
+
+      expect(Logic.mate?(@spaces, @player)).to be true
+    end
+
+    it "returns false when the attacker can be blocked" do
+      @ally_knight = mock_piece("knight", "black", "BN")
+      @enemy_bishop = mock_piece("bishop", "white", "WB")
+
+      set_pawns( [[4, 6], [5, 6], [5, 7]], "black")
+      @spaces[4][7] = @king
+      @spaces[4][4] = @ally_knight
+      @spaces[1][4] = @enemy_bishop
+      @spaces[1][5] = @enemy_bishop
+
+      expect(Logic.mate?(@spaces, @player)).to be false
+    end
+
+    it "returns false when the attacker can be captured" do
+      @ally_knight = mock_piece("knight", "black", "BN")
+      @enemy_bishop = mock_piece("bishop", "white", "WB")
+
+      set_pawns( [[4, 6], [5, 6], [5, 7]], "black")
+      @spaces[4][7] = @king
+      @spaces[0][2] = @ally_knight
+      @spaces[1][4] = @enemy_bishop
+      @spaces[1][5] = @enemy_bishop
+
+      expect(Logic.mate?(@spaces, @player)).to be false
+    end
+
+    it "returns true when the attacker is next to the king, but protected" do
+      @enemy_queen = mock_piece("queen", "white", "WQ")
+      @enemy_bishop = mock_piece("bishop", "white", "WB")
+
+      @spaces[4][7] = @king
+      @spaces[4][6] = @enemy_queen
+      @spaces[0][2] = @enemy_bishop
 
       expect(Logic.mate?(@spaces, @player)).to be true
     end
