@@ -63,6 +63,48 @@ class Logic
       return moves
     end
 
+    def can_be_blocked?(spaces, attacker, victim)
+      return false if ["king", "knight", "pawn"].include? attacker.name
+
+      rank0, file0 = find(spaces, attacker)
+      rank1, file1 = find(spaces, victim)
+
+      unless threats_to(spaces, [rank1, file1]).include? attacker
+        puts "Error: attacker is not threatening victim!"
+        return true
+      end
+
+      find_step = -> (pos0, pos1) {
+        if pos0 == pos1
+          return 0
+        else
+          return (pos1 - pos0) / abs(pos1 - pos0)
+        end
+      }
+
+      rank_step = find_step.call(rank0, rank1)
+      file_step = find_step.call(file0, file1)
+
+      rank = rank0 + rank_step
+      file = file0 + file_step
+      steps = []
+      until [rank, file] == [rank1, file1] do
+        if rank < 0 || file < 0 || rank >= spaces.size || file >= spaces.size
+          puts "Error: pathfindng missed target in method can_be_blocked?"
+          puts "Steps: #{steps}"
+          return true
+        end
+
+        steps << [rank, file]
+        rank += rank_step
+        file += file_step
+      end
+
+      steps.each do |coords|
+        return true if threats_to(spaces, coords).any? { |threat| threat.color != attacker.color }
+      end
+    end
+
     def check?(spaces, player)
       king_coords = find(spaces, player.pieces[:king])
       threats_to(spaces, king_coords).each { |piece| return true unless piece.color == player.color }
@@ -122,6 +164,20 @@ class Logic
       end
     end
 
+    def king_trapped?(spaces, player)
+      king_coords = find(spaces, player.pieces[:king])
+      moves = king_moves(spaces, king_coords, player.pieces[:king])
+
+      # We don't want the king "blocking" an adjacent space from attack
+      spaces[king_coords[0]][king_coords[1]] = nil
+
+      moves.each do |move|
+        return false if threats_to(spaces, move).none? { |piece| piece.color != player.color }
+      end
+
+      return true
+    end
+
     def king_moves(spaces, start, actor)
       files = [start[0]]
       files << (start[0] - 1) unless start[0] == 0
@@ -165,18 +221,12 @@ class Logic
 
     def mate?(spaces, player)
       return false unless check?(spaces, player)
+      return false unless king_trapped?(spaces, player)
 
-      king_coords = find(spaces, player.pieces[:king])
-      moves = king_moves(spaces, king_coords, player.pieces[:king])
-
-      puts "#{player.color.capitalize} kings's moves: "
-      moves.each do |move|
-        print "#{move}; threats: "
-        p threats_to(spaces, move).map { |threat| threat.color + "_" + threat.name}
-      end
-
-      moves.each do |move|
-        return false if threats_to(spaces, move).none? { |piece| piece.color != player.color }
+      attackers = threats_to( spaces, find(spaces, player.pieces[:king]) ).select { |threat| threat.color != player.color }
+      attackers.each do |attacker|
+        return false if can_be_blocked?(spaces, attacker, player.pieces[:king])
+        return false if threats_to(spaces, attacker).any? { |threat| threat.color == player.color }
       end
 
       return true
