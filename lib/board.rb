@@ -1,3 +1,4 @@
+require "./lib/logic.rb"
 require "./lib/piece.rb"
 require "./lib/player.rb"
 
@@ -17,30 +18,8 @@ class Board
     return @players[0]
   end
 
-  def find_moves(start)
-    piece = @spaces[start[0]][start[1]]
-    return [] if piece.nil?
-
-    case piece.name
-    when "pawn"
-      return pawn_moves(start, piece)
-    when "knight"
-      return knight_moves(start, piece)
-    when "bishop"
-      return bishop_moves(start, piece)
-    when "rook"
-      return rook_moves(start, piece)
-    when "queen"
-      return queen_moves(start, piece)
-    when "king"
-      return king_moves(start, piece)
-    else
-      raise RuntimeError, "Unknown piece: #{piece.name}"
-    end
-  end
-
   def make_move(move)
-    move_info = decode_move(move)
+    move_info = Logic.decode_move(move)
     return [false, "Could not decode input - use long algebraic notation."] unless move_info
 
     type = move_info[0]
@@ -56,7 +35,7 @@ class Board
       return [false, "There's no #{type} at that space. Did you mean to move the #{piece.name}?"]
     end
 
-    valid_moves = find_moves(start_coords)
+    valid_moves = Logic.find_moves(@spaces, start_coords)
     return [false, "That piece can't move like that."] unless valid_moves.include? end_coords
 
     target = @spaces[end_coords[0]][end_coords[1]]
@@ -64,14 +43,14 @@ class Board
     @spaces[start_coords[0]][start_coords[1]] = nil
     message = target.nil? ? move : move.sub("-", "x")
 
-    if check?(current_player)
+    if Logic.check?(@spaces, current_player)
       @spaces[end_coords[0]][end_coords[1]] = target
       @spaces[start_coords[0]][start_coords[1]] = piece
       return [false, "You can't allow your own king to be in check!"]
     end
 
-    if check?(@players[1])
-      if mate?(@players[1])
+    if Logic.check?(@spaces, @players[1])
+      if Logic.mate?(@spaces, @players[1])
         message += "#\n"
         message += current_player.color == "white" ? "1-0" : "0-1"
         victor = current_player
@@ -83,17 +62,6 @@ class Board
     @players << @players.shift
 
     return [true, message]
-  end
-
-  def threats_to(coords)
-    threats = []
-    @spaces.size.times do |rank|
-      @spaces.size.times do |file|
-        piece = @spaces[rank][file]
-        threats << piece if (!piece.nil?) && (find_moves([rank, file]).include? coords)
-      end
-    end
-    return threats
   end
 
   def to_s
@@ -109,6 +77,7 @@ class Board
   end
 
   private
+<<<<<<< HEAD
   def check?(player)
     king_coords = find(player.pieces[:king])
     threats_to(king_coords).each { |piece| return true unless piece.color == player.color }
@@ -358,6 +327,8 @@ class Board
     return true
   end
 
+=======
+>>>>>>> separate-logic
   def set_up_pieces
     @spaces[0][0] = @players[0].pieces[:rooks][0]
     @spaces[1][0] = @players[0].pieces[:knights][0]
