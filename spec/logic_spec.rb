@@ -234,7 +234,7 @@ describe Logic do
     end
 
     it "returns true when the player has been checkmated" do
-      @enemy_bishop = mock_piece("bishop", "white", "WR")
+      @enemy_bishop = mock_piece("bishop", "white", "WB")
       @enemy_knight = mock_piece("knight", "white", "WN")
       @enemy_king = mock_piece("king", "white", "WK")
 
@@ -249,7 +249,7 @@ describe Logic do
     it "does not consider the king's 'shadow' to be a way out of checkmate" do
       @enemy_rook = mock_piece("rook", "white", "WR")
 
-      set_pawns( [[3, 6], [4, 6], [5, 6]], "black")
+      @spaces = set_pawns( [[3, 6], [4, 6], [5, 6]], "black")
       @spaces[4][7] = @king
       @spaces[0][7] = @enemy_rook
 
@@ -260,7 +260,7 @@ describe Logic do
       @ally_knight = mock_piece("knight", "black", "BN")
       @enemy_bishop = mock_piece("bishop", "white", "WB")
 
-      set_pawns( [[4, 6], [5, 6], [5, 7]], "black")
+      @spaces = set_pawns( [[4, 6], [5, 6], [5, 7]], "black")
       @spaces[4][7] = @king
       @spaces[4][4] = @ally_knight
       @spaces[1][4] = @enemy_bishop
@@ -273,7 +273,7 @@ describe Logic do
       @ally_knight = mock_piece("knight", "black", "BN")
       @enemy_bishop = mock_piece("bishop", "white", "WB")
 
-      set_pawns( [[4, 6], [5, 6], [5, 7]], "black")
+      @spaces = set_pawns( [[4, 6], [5, 6], [5, 7]], "black")
       @spaces[4][7] = @king
       @spaces[0][2] = @ally_knight
       @spaces[1][4] = @enemy_bishop
@@ -294,6 +294,8 @@ describe Logic do
     end
 
     it "returns false when the player is in check, but not checkmate" do
+      @enemy_rook = mock_piece("rook", "white", "WR")
+
       @spaces[4][7] = @king
       @spaces[0][7] = @enemy_rook
       @spaces[7][5] = @enemy_rook
@@ -302,6 +304,8 @@ describe Logic do
     end
 
     it "returns false when the player is in neither check nor checkmate" do
+      @enemy_rook = mock_piece("rook", "white", "WR")
+
       @spaces[4][7] = @king
       @spaces[0][0] = @enemy_rook
       @spaces[7][0] = @enemy_rook
@@ -531,6 +535,7 @@ describe Logic do
     spaces = Array.new(8) { Array.new(8) }
 
     mock = mock_piece("pawn", color, color[0].upcase + "P")
+    allow(mock).to receive(:has_moved).and_return(false)
 
     positions.each do |rank, file|
       spaces[rank][file] = mock

@@ -78,7 +78,7 @@ class Logic
         if pos0 == pos1
           return 0
         else
-          return (pos1 - pos0) / abs(pos1 - pos0)
+          return (pos1 - pos0) / (pos1 - pos0).abs
         end
       }
 
@@ -101,8 +101,10 @@ class Logic
       end
 
       steps.each do |coords|
-        return true if threats_to(spaces, coords).any? { |threat| threat.color != attacker.color }
+        return true if threats_to(spaces, coords).any? { |threat| threat != victim && threat.color != attacker.color }
       end
+
+      return false
     end
 
     def check?(spaces, player)
@@ -169,10 +171,11 @@ class Logic
       moves = king_moves(spaces, king_coords, player.pieces[:king])
 
       # We don't want the king "blocking" an adjacent space from attack
-      spaces[king_coords[0]][king_coords[1]] = nil
+      spaces_no_king = spaces.map(&:dup)
+      spaces_no_king[king_coords[0]][king_coords[1]] = nil
 
       moves.each do |move|
-        return false if threats_to(spaces, move).none? { |piece| piece.color != player.color }
+        return false if threats_to(spaces_no_king, move).none? { |piece| piece.color != player.color }
       end
 
       return true
@@ -220,16 +223,31 @@ class Logic
     end
 
     def mate?(spaces, player)
+      spaces.size.times do |file|
+        file.size.times do |rank|
+          print spaces[file][rank].nil? ? "_|" : spaces[file][rank]
+        end
+        puts ""
+      end
+      puts "King in check? #{check?(spaces, player)}"
       return false unless check?(spaces, player)
+      puts "King trapped? #{king_trapped?(spaces, player)}"
       return false unless king_trapped?(spaces, player)
 
       attackers = threats_to( spaces, find(spaces, player.pieces[:king]) ).select { |threat| threat.color != player.color }
       attackers.each do |attacker|
-        return false if can_be_blocked?(spaces, attacker, player.pieces[:king])
-        return false if threats_to(spaces, attacker).any? { |threat| threat.color == player.color }
+        puts "#{attacker.to_s}:"
+        puts "Can be blocked? #{can_be_blocked?(spaces, attacker, player.pieces[:king])}"
+        blockable = can_be_blocked?(spaces, attacker, player.pieces[:king])
+
+        attacker_coords = find(spaces, attacker)
+        puts "Can be taken? #{threats_to(spaces, attacker_coords).any? { |threat| threat.color == player.color }}"
+        capturable = threats_to(spaces, attacker_coords).any? { |threat| threat.color == player.color }
+
+        return true if !blockable && !capturable
       end
 
-      return true
+      return false
     end
 
     def pawn_moves(spaces, start, actor)
