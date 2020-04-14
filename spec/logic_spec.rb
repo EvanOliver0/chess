@@ -293,6 +293,36 @@ describe Logic do
       expect(Logic.mate?(@spaces, @player)).to be true
     end
 
+    it "returns true when one attacker can be blocked, but another cannot" do
+      @ally_knight = mock_piece("knight", "black", "BN")
+      @enemy_bishop = mock_piece("bishop", "white", "WB")
+      @enemy_rook = mock_piece("rook", "white", "WR")
+
+      @spaces = set_pawns( [[4, 6], [5, 6], [5, 7]], "black")
+      @spaces[4][7] = @king
+      @spaces[4][4] = @ally_knight
+      @spaces[1][4] = @enemy_bishop
+      @spaces[1][5] = @enemy_bishop
+      @spaces[0][7] = @enemy_rook
+
+      expect(Logic.mate?(@spaces, @player)).to be true
+    end
+
+    it "returns true when one attacker can be captured, but another cannot" do
+      @ally_knight = mock_piece("knight", "black", "BN")
+      @enemy_bishop = mock_piece("bishop", "white", "WB")
+      @enemy_rook = mock_piece("rook", "white", "WR")
+
+      @spaces = set_pawns( [[4, 6], [5, 6], [5, 7]], "black")
+      @spaces[4][7] = @king
+      @spaces[0][2] = @ally_knight
+      @spaces[1][4] = @enemy_bishop
+      @spaces[1][5] = @enemy_bishop
+      @spaces[0][7] = @enemy_rook
+
+      expect(Logic.mate?(@spaces, @player)).to be true
+    end
+
     it "returns false when the player is in check, but not checkmate" do
       @enemy_rook = mock_piece("rook", "white", "WR")
 
